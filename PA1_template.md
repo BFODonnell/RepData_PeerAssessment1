@@ -1,15 +1,8 @@
----
-title: 'Week 2: Assignment - Course Project 1'
-author: "Brian O'Donnell"
-date: "June 12, 2016"
-output: 
-  html_document: 
-    keep_md: yes
----
+# Week 2: Assignment - Course Project 1
+Brian O'Donnell  
+June 12, 2016  
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ##Introduction
 
@@ -32,55 +25,83 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 
 ##Loading and preprocessing the data
 Load the data
-```{r}
+
+```r
 data = read.csv('activity.csv', stringsAsFactors=FALSE)
 ```
 NOTE: The data file is assumed to be in the current working directory.
 
 Pre-process the data
-```{r}
+
+```r
 data$date <- as.Date(data$date, format = "%Y-%m-%d")
 head(data)
 ```
 
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
+```
+
 ##What is mean total number of steps taken per day?
 ###1 Calculate the total number of steps taken per day
-```{r}
+
+```r
 dailyTotal <- aggregate(steps ~ date, data, sum)
 ```
 Example data:
-```{r, echo=FALSE}
-head(dailyTotal)
+
+```
+##         date steps
+## 1 2012-10-02   126
+## 2 2012-10-03 11352
+## 3 2012-10-04 12116
+## 4 2012-10-05 13294
+## 5 2012-10-06 15420
+## 6 2012-10-07 11015
 ```
 
 ###2 A histogram of the total number of steps taken each day
-```{r}
+
+```r
 hist(dailyTotal$step,
      col="blue", 
      xlab="Total number of steps", 
      main="Histogram of the total number of steps taken per day\n(NA removed)")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 ###3 Calculate and report the mean and median of the total number of steps taken per day
-```{r}
+
+```r
 meanTotalStepsPerDay <- mean(dailyTotal$steps)
 ```
 The mean of the total number of step taken per day is: 
-```{r, echo=FALSE}
-meanTotalStepsPerDay
+
+```
+## [1] 10766.19
 ```
 
-```{r}
+
+```r
 medianTotalStepsPerDay <- median(dailyTotal$steps, na.rm=TRUE)
 ```
 The median of the total number of step taken per day is: 
-```{r, echo=FALSE}
-medianTotalStepsPerDay
+
+```
+## [1] 10765
 ```
 
 ##What is the average daily activity pattern?
 ###1 Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
-```{r}
+
+```r
 mean_data <- aggregate(data$steps, 
                        by=list(data$interval), 
                        FUN=mean, 
@@ -96,10 +117,13 @@ plot(mean_data$interval,
      main="Time-series of the average number of steps per intervals\n(NA removed)")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+
 
 
 ###2 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r}
+
+```r
 max_pos <- which(mean_data$mean == max(mean_data$mean))
 max_interval <- mean_data[max_pos, 1]
 ```
@@ -107,12 +131,14 @@ max_interval <- mean_data[max_pos, 1]
 
 
 The max_interval value is:
-```{r, echo=FALSE}
-max_interval
+
+```
+## [1] 835
 ```
 and has the maximum of 
-```{r, echo=FALSE}
-max_pos
+
+```
+## [1] 104
 ```
 steps.
 
@@ -124,28 +150,33 @@ Note that there are a number of days/intervals where there are missing values (c
 
 ###1 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r}
+
+```r
 NA_count <- sum(is.na(data$steps))
 ```
 The number of rows with NAs:
-```{r, echo=FALSE}
-NA_count
+
+```
+## [1] 2304
 ```
 
 ###2 Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
-```{r}
+
+```r
 na_pos <- which(is.na(data$steps))
 mean_vec <- rep(mean(data$steps, na.rm=TRUE), times=length(na_pos))
 ```
 
 ###3 Create a new dataset that is equal to the original dataset but with the missing data filled in.
-```{r}
+
+```r
 data[na_pos, "steps"] <- mean_vec
 ```
 
 ###4 Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 dailyTotal <- aggregate(data$steps, 
                        by=list(data$date), 
                        FUN=sum)
@@ -158,26 +189,33 @@ hist(dailyTotal$total,
      main="Histogram of the total number of steps taken each day\n(NA replaced by mean value)")
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
+
+```r
 meanTotalStepsPerDay <- mean(dailyTotal$total)
 ```
 The mean of the total number of step taken per day is: 
-```{r, echo=FALSE}
-meanTotalStepsPerDay
+
+```
+## [1] 10766.19
 ```
 
-```{r}
+
+```r
 medianTotalStepsPerDay <- median(dailyTotal$total)
 ```
 The median of the total number of step taken per day is: 
-```{r, echo=FALSE}
-medianTotalStepsPerDay
+
+```
+## [1] 10766.19
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 ###1 Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
-```{r}
+
+```r
 data <- data.frame(date=data$date, 
                 weekday=tolower(weekdays(data$date)), 
                 steps=data$steps, 
@@ -189,7 +227,8 @@ data <- cbind(data,
                 "weekday"))
 ```
 ###2 Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
-```{r}
+
+```r
 library(lattice)
 
 # Compute the average number of steps taken, averaged across all daytype variable
@@ -207,3 +246,5 @@ xyplot(mean ~ interval | daytype, mean_data,
        ylab="Number of steps", 
        layout=c(1,2))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-24-1.png)<!-- -->
